@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "types": ["@types/jasmine"],
+    "jsx": "react"
+  }
+}
