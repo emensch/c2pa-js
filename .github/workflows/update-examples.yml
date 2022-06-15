@@ -11,14 +11,38 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          path: workspace
           fetch-depth: 0
-      - name: Run changed-files with defaults on the dir1
-        id: changed-examples
-        uses: tj-actions/changed-files@v23
-        with:
-          path: examples
-      - name: List all modified files in dir1
+      - name: Install Rush
+        run: npm install @microsoft/rush --location=global
+      - name: Install dependencies
+        working-directory: workspace
+        run: rush install
+      - name: Pack all examples
+        working-directory: workspace
         run: |
-          for file in ${{ steps.changed-examples.outputs.all_modified_files	 }}; do
-            echo "$file was added"
+          for dir in examples/*; do
+            rush-pnpm pack -C $dir
           done
+      - name: Extract all packed examples
+        working-directory: workspace
+        run: |
+          find . -name '*.tgz' -exec sh -c 'tar xzvf {} -C $(dirname {}) --strip-components=1 && rm {}' \;
+      - name: Checkout example repo
+        uses: actions/checkout@v3
+        with:
+          repository: emensch/test-js-sdk-examples
+          ref: main
+          token: ${{ secrets.TEST_SECRET }}
+          path: examples
+      - name: Move modified examples to example repo
+        run: |
+          rsync -a workspace/examples/ examples/
+      - name: Commit examples
+        working-directory: examples
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Updated to ${{ github.repository }}@${{ github.sha }}"
+          git push

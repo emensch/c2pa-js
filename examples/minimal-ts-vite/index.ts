@@ -7,4 +7,5 @@ Object.keys(examples).forEach((example) => {
 		<a href="${examples[example]}">${example}</li>
 	`;
   list.appendChild(item);
+  console.log('another exciting change :)');
 });
