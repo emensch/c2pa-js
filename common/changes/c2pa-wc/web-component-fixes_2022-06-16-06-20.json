@@ -1,0 +1,25 @@
+{
+  "changes": [
+    {
+      "packageName": "c2pa-wc",
+      "comment": "Fix tooltip positioning",
+      "type": "minor"
+    },
+    {
+      "packageName": "c2pa-wc",
+      "comment": "Use product field instead of value for Produced With",
+      "type": "patch"
+    },
+    {
+      "packageName": "c2pa-wc",
+      "comment": "Add Produced With help tooltip",
+      "type": "patch"
+    },
+    {
+      "packageName": "c2pa-wc",
+      "comment": "Add fixed View More button",
+      "type": "patch"
+    }
+  ],
+  "packageName": "c2pa-wc"
+}
