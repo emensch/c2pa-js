@@ -8,9 +8,10 @@ import {
   Placement,
   shift,
   Strategy,
+  autoPlacement,
 } from '@floating-ui/dom';
 import { animate } from '@lit-labs/motion';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, PropertyValueMap } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import '../../assets/svg/monochrome/help.svg';
 import { PartPrefixable } from '../mixins/PartPrefixable';
@@ -30,6 +31,8 @@ export class Popover extends PartPrefixable(LitElement) {
 
   private _eventCleanupFns: Function[] = [];
 
+  private positionConfig: Partial<ComputePositionConfig> = {};
+
   static readonly cssParts: Record<string, string> = {
     arrow: 'popover-arrow',
     box: 'popover-box',
@@ -43,7 +46,7 @@ export class Popover extends PartPrefixable(LitElement) {
   animationDuration = 200;
 
   @property({ type: String })
-  placement: Placement = 'right-start';
+  placement: Placement = 'left-end';
 
   @property({ type: String })
   strategy: Strategy = 'absolute';
@@ -52,7 +55,10 @@ export class Popover extends PartPrefixable(LitElement) {
   arrow = false;
 
   @property({ type: Object })
-  flip = null;
+  flip = {};
+
+  @property({ type: Boolean })
+  autoPlacement = false;
 
   @property({ type: Object })
   offset = { mainAxis: 10 };
@@ -75,17 +81,48 @@ export class Popover extends PartPrefixable(LitElement) {
   @query('#trigger')
   triggerElement: HTMLElement | undefined;
 
-  @property({ attribute: false })
-  modifyConfig: (
-    config: Partial<ComputePositionConfig>,
-  ) => Partial<ComputePositionConfig> = (
-    config: Partial<ComputePositionConfig>,
-  ) => config;
+  // @TODO: respect updated properties
+  protected updated(
+    _changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>,
+  ): void {
+    const middleware: ComputePositionConfig['middleware'] = [];
+
+    if (this.flip) {
+      middleware.push(flip());
+    }
+    if (this.offset) {
+      middleware.push(offset(this.offset));
+    }
+    if (this.shift) {
+      middleware.push(shift(this.shift));
+    }
+    if (this.arrow) {
+      middleware.push(
+        arrow({
+          element: this.arrowElement!,
+        }),
+      );
+    }
+    if (this.autoPlacement) {
+      middleware.push(autoPlacement({ padding: 5 }));
+    }
+
+    this.positionConfig = {
+      placement: this.placement,
+      strategy: this.strategy,
+      middleware,
+    };
+  }
 
   static get styles() {
     return [
       defaultStyles,
       css`
+        :host {
+          position: relative;
+          z-index: 100;
+        }
+
         #content {
           opacity: 0;
           position: absolute;
@@ -166,36 +203,11 @@ export class Popover extends PartPrefixable(LitElement) {
     });
   }
 
-  private _getPositionConfig(): Partial<ComputePositionConfig> {
-    const middleware: ComputePositionConfig['middleware'] = [];
-    if (this.flip) {
-      middleware.push(flip(this.flip));
-    }
-    if (this.offset) {
-      middleware.push(offset(this.offset));
-    }
-    if (this.shift) {
-      middleware.push(shift(this.shift));
-    }
-    if (this.arrow) {
-      middleware.push(
-        arrow({
-          element: this.arrowElement!,
-        }),
-      );
-    }
-    return this.modifyConfig({
-      placement: this.placement,
-      strategy: this.strategy,
-      middleware,
-    });
-  }
-
   private async _updatePosition() {
     const { x, y, middlewareData } = await computePosition(
       this.triggerElement!,
       this.contentElement!,
-      this._getPositionConfig(),
+      this.positionConfig,
     );
 
     Object.assign(this.contentElement!.style, {

@@ -47,7 +47,7 @@ export class Tooltip extends LitElement {
         }
         #popover::part(popover-content) {
           min-width: 185px;
-          max-width: 250px;
+          max-width: 235px;
           font-size: 13px;
           padding: 10px;
           box-shadow: none;
@@ -60,7 +60,6 @@ export class Tooltip extends LitElement {
     return html`
       <cai-popover
         id="popover"
-        placement="top-end"
         ?interactive=${false}
         part-prefix=${Tooltip.popoverPrefix}
         exportparts=${exportParts(Popover.cssParts, Tooltip.popoverPrefix)}
