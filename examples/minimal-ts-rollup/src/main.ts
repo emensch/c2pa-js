@@ -3,7 +3,7 @@ import wasmModule from 'c2pa/dist/assets/wasm/toolkit_bg.wasm';
 
 const sampleImage =
   'https://cdn.jsdelivr.net/gh/contentauth/c2pa-js/tools/testing/fixtures/images/CAICAI.jpg';
-
+console.log('example change');
 (async () => {
   // Initialize the c2pa-js SDK
   const wasmSrc = await wasmModule();
