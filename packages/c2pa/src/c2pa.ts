@@ -20,6 +20,8 @@ import { C2paSourceType, createSource, Source } from './source';
 const dbg = debug('c2pa');
 const dbgTask = debug('c2pa:task');
 
+console.log('not an example');
+
 // @TODO: should wasmSrc/workerSrc be optional here w/ an error at runtime if not provided?
 export interface C2paConfig<T extends ManifestResolvers = {}> {
   /**
