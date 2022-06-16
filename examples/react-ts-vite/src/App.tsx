@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useC2pa, useThumbnailUrl } from '@contentauth/react-hooks';
+import { useC2pa, useThumbnailUrl } from '@contentauth/react';
 import 'c2pa-wc/dist/components/Icon';
 import 'c2pa-wc/dist/components/Indicator';
 import 'c2pa-wc/dist/components/Popover';
@@ -7,7 +7,7 @@ import 'c2pa-wc/dist/components/panels/ManifestSummary';
 import 'c2pa-wc/dist/components/panels/PanelSection';
 import { ManifestSummary } from 'c2pa-wc/dist/components/panels/ManifestSummary';
 import './App.css';
-import sampleImage from '../assets/CAICAI.jpg?url';
+// import sampleImage from '../assets/CAICAI.jpg?url';
 import {
   C2paReadResult,
   generateVerifyUrl,
@@ -27,9 +27,14 @@ interface WebComponentsProps {
   viewMoreUrl: string;
 }
 
+const sampleImage =
+  'https://raw.githubusercontent.com/contentauth/c2pa-js/main/tools/testing/fixtures/images/CAICAI.jpg';
+
 function ManifestInfo({ manifest, viewMoreUrl }: ManifestInfoProps) {
   const thumbnailUrl = useThumbnailUrl(manifest?.thumbnail);
   const producer = manifest?.producer;
+
+  console.log('updated');
 
   return (
     <table className="claim-info">
