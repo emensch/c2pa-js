@@ -64,7 +64,15 @@ export class ManifestSummary extends LitElement {
       defaultStyles,
       css`
         #container {
-          width: 280px;
+          width: 320px;
+        }
+        #content-container {
+          max-height: 550px;
+          padding: 20px;
+          overflow: auto;
+          border-bottom: 1px solid #e1e1e1;
+        }
+        #view-more-container {
           padding: 20px;
         }
         #sections {
@@ -72,7 +80,7 @@ export class ManifestSummary extends LitElement {
           margin-top: 20px;
           border-top: 1px solid #e1e1e1;
         }
-        #sections > .section {
+        #sections > .section:not(:last-child) {
           padding-bottom: 20px;
           margin-bottom: 20px;
           border-bottom: 1px solid #e1e1e1;
@@ -85,7 +93,6 @@ export class ManifestSummary extends LitElement {
           color: var(--cai-color);
           display: block;
           font-weight: bold;
-          margin-top: 20px;
           padding: 8px 0;
           text-align: center;
           text-decoration: none;
@@ -137,37 +144,44 @@ export class ManifestSummary extends LitElement {
     };
 
     return html`<div id="container" part=${ManifestSummary.cssParts.container}>
-      <div slot="header">
-        ${MinimumViableProvenance(
-          merge(sectionProps, {
-            config: {
-              partMap: ManifestSummary.cssParts,
-            },
-          }),
-        )}
+      <div id="content-container">
+        <div slot="header">
+          ${MinimumViableProvenance(
+            merge(sectionProps, {
+              config: {
+                partMap: ManifestSummary.cssParts,
+              },
+            }),
+          )}
+        </div>
+        <div id="sections" part=${ManifestSummary.cssParts.sections}>
+          ${Object.values(
+            this._config.sections(ManifestSummary.defaultSections),
+          ).map(
+            (sectionFn) =>
+              html`<div
+                class="section"
+                part=${ManifestSummary.cssParts.section}
+              >
+                ${sectionFn(sectionProps)}
+              </div>`,
+          )}
+        </div>
       </div>
-      <div id="sections" part=${ManifestSummary.cssParts.sections}>
-        ${Object.values(
-          this._config.sections(ManifestSummary.defaultSections),
-        ).map(
-          (sectionFn) =>
-            html`<div class="section" part=${ManifestSummary.cssParts.section}>
-              ${sectionFn(sectionProps)}
-            </div>`,
-        )}
+      <div id="view-more-container">
+        ${this.viewMoreUrl
+          ? html`
+              <a
+                id="view-more"
+                href=${this.viewMoreUrl}
+                target="_blank"
+                part=${ManifestSummary.cssParts.viewMore}
+              >
+                ${this._config.stringMap['manifest-summary.viewMore']}
+              </a>
+            `
+          : nothing}
       </div>
-      ${this.viewMoreUrl
-        ? html`
-            <a
-              id="view-more"
-              href=${this.viewMoreUrl}
-              target="_blank"
-              part=${ManifestSummary.cssParts.viewMore}
-            >
-              ${this._config.stringMap['manifest-summary.viewMore']}
-            </a>
-          `
-        : nothing}
     </div>`;
   }
 }
