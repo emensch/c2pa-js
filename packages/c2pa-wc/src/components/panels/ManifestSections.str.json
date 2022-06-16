@@ -5,7 +5,7 @@
   "produced-by.header": "Produced by",
   "produced-by.helpText": "Chosen name of the person who exported this content",
   "produced-with.header": "Produced with",
-  "produced-with.helpText": null,
+  "produced-with.helpText": "Software used to make this content",
   "produced-with.beta": "Content Credentials (Beta)",
   "edits-and-activity.header": "Edits and activity",
   "edits-and-activity.helpText": "Changes and actions taken to produce this content",
