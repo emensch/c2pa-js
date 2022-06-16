@@ -172,14 +172,14 @@ export function ProducedWith({
           class="section-produced-with-content"
         >
           <cai-icon
-            source="${manifest.claimGenerator.value}"
+            source="${manifest.claimGenerator.product}"
             exportparts=${exportParts(Icon.cssParts)}
           ></cai-icon>
           <span
             part="section-produced-with-content-label"
             class="section-produced-with-content-label"
           >
-            ${manifest.claimGenerator.value}
+            ${manifest.claimGenerator.product}
           </span>
         </div>
         ${manifest.isBeta
