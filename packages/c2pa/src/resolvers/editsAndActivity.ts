@@ -29,13 +29,85 @@ declare module '../assertions' {
 
 export interface TranslatedDictionaryCategory {
   id: string;
-  icon: string;
+  icon?: string;
   label: string;
   description: string;
-  [key: string]: string;
 }
 
 const UNCATEGORIZED_ID = 'UNCATEGORIZED';
+
+const CATEGORY_DICTIONARY = {
+  COLOR_ADJUSTMENTS: {
+    label: 'Color adjustments',
+    description: 'Changes to tone, saturation, etc.',
+  },
+  CONVERSION: {
+    label: 'Conversion',
+    description: 'The format of the asset was changed',
+  },
+  CREATION: {
+    label: 'Creation',
+    description: 'The asset was first created',
+  },
+  TRANSFORM: {
+    label: 'Size and position adjustments',
+    description: 'Changed size, orientation, direction, or position',
+  },
+  PAINTING: {
+    label: 'Paint tools',
+    description: 'Edited with brushes or eraser tools',
+  },
+  EDITING: {
+    label: 'Editing',
+    description:
+      "Generalized actions that would be considered 'editorial transformations' of the content",
+  },
+  FILTERING: {
+    label: 'Filtering',
+    description: 'Changes to appearance with applied filters, styles, etc.',
+  },
+  OPENING: {
+    label: 'Opening',
+    description:
+      "An existing asset was opened and is being set as the 'parentOf' ingredient",
+  },
+  COMPOSITING: {
+    label: 'Combined assets',
+    description: 'Composited 2 or more assets',
+  },
+  PUBLISHING: {
+    label: 'Publishing',
+    description: 'Asset is released to a wider audience',
+  },
+  REMOVING: {
+    label: 'Removing',
+    description: 'A component ingredient was removed',
+  },
+  UNKNOWN: {
+    label: 'Unknown',
+    description:
+      'Something happened, but the claim_generator cannot specify what',
+  },
+};
+
+const ACTION_CATEGORY_MAP: Record<string, keyof typeof CATEGORY_DICTIONARY> = {
+  'c2pa.color_adjustments': 'COLOR_ADJUSTMENTS',
+  'c2pa.converted': 'CONVERSION',
+  'c2pa.created': 'CREATION',
+  'c2pa.cropped': 'TRANSFORM',
+  'c2pa.drawing': 'PAINTING',
+  'c2pa.edited': 'EDITING',
+  'c2pa.filtered': 'FILTERING',
+  'c2pa.opened': 'OPENING',
+  'c2pa.orientation': 'TRANSFORM',
+  'c2pa.placed': 'COMPOSITING',
+  'c2pa.published': 'PUBLISHING',
+  'c2pa.removed': 'REMOVING',
+  'c2pa.repackaged': 'CONVERSION',
+  'c2pa.resized': 'TRANSFORM',
+  'c2pa.transcoded': 'CONVERSION',
+  'c2pa.unknown': 'UNKNOWN',
+};
 
 /**
  * Uses the dictionary to translate an action name into category information
@@ -72,7 +144,28 @@ const processCategories = flow(
   sortBy((category) => category.label),
 );
 
-async function getCategorizedActions(
+function getC2paCategorizedActions(
+  manifest: BaseManifest<any>,
+): TranslatedDictionaryCategory[] | null {
+  const actions = manifest.assertions.get('c2pa.actions')?.data.actions;
+
+  if (!actions) {
+    return null;
+  }
+
+  const uniqueActionLabels = actions
+    ?.map(({ action }) => ACTION_CATEGORY_MAP[action])
+    .filter((val, idx, self) => self.indexOf(val) === idx)
+    .map((category) => ({
+      id: category,
+      icon: undefined,
+      ...CATEGORY_DICTIONARY[category],
+    }));
+
+  return uniqueActionLabels;
+}
+
+async function getPhotoshopCategorizedActions(
   manifest: BaseManifest<any>,
   locale = 'en-US',
   iconVariant: IconVariant = 'dark',
@@ -99,6 +192,14 @@ async function getCategorizedActions(
   );
 
   return categories;
+}
+
+async function getCategorizedActions(manifest: BaseManifest<any>) {
+  if (manifest.assertions.get('adobe.dictionary')) {
+    return await getPhotoshopCategorizedActions(manifest);
+  }
+
+  return getC2paCategorizedActions(manifest);
 }
 
 type IconVariant = 'light' | 'dark';
@@ -139,7 +240,7 @@ export const editsAndActivity = createTypedResolvers({
   editsAndActivity: {
     get: (manifest) => getCategorizedActions.bind(null, manifest),
     // @TODO how to handle parameterized calls?
-    getSerializable: async (manifest) => getCategorizedActions(manifest),
+    getSerializable: async (manifest) => getCategorizedActions(manifest) as any,
   },
 });
 
