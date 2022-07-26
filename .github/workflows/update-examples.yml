@@ -21,7 +21,7 @@ jobs:
       - name: Pack all examples
         working-directory: workspace
         run: |
-          for dir in examples/*; do
+          for dir in examples/*/; do
             rush-pnpm pack -C $dir
           done
       - name: Extract all packed examples in-place
