@@ -7,6 +7,5 @@ It is built on top of the [lit-element](https://lit-element.polymer-project.org/
 ## Running
 
 ```
-yarn install
-yarn dev
+rushx dev
 ```
