@@ -7,7 +7,12 @@
  * it.
  */
 
-import { ActionV1, C2paActionsAssertion } from '@contentauth/toolkit';
+import {
+  ActionV1,
+  ActionV2,
+  C2paActionsAssertion,
+  C2paActionsAssertionV2,
+} from '@contentauth/toolkit';
 import debug from 'debug';
 import each from 'lodash/each';
 import compact from 'lodash/fp/compact';
@@ -127,7 +132,10 @@ export async function selectEditsAndActivity(
     manifest.assertions.get('com.adobe.dictionary')[0] ??
     manifest.assertions.get('adobe.dictionary')[0];
 
-  const [actionAssertion] = manifest.assertions.get('c2pa.actions');
+  const [actionsV2] = manifest.assertions.get('c2pa.actions.v2');
+  const [actionsV1] = manifest.assertions.get('c2pa.actions');
+
+  const actionAssertion = actionsV2 ?? actionsV1;
 
   if (!actionAssertion) {
     return null;
@@ -146,7 +154,7 @@ export async function selectEditsAndActivity(
 }
 
 async function getPhotoshopCategorizedActions(
-  actions: ActionV1[],
+  actions: ActionV1[] | ActionV2[],
   dictionaryUrl: string,
   locale = DEFAULT_LOCALE,
   iconVariant: IconVariant = 'dark',
@@ -196,7 +204,7 @@ interface OverrideActionMap {
  * @returns List of translated action categories
  */
 export function getC2paCategorizedActions(
-  actionsAssertion: C2paActionsAssertion,
+  actionsAssertion: C2paActionsAssertion | C2paActionsAssertionV2,
   locale: string = DEFAULT_LOCALE,
 ): TranslatedDictionaryCategory[] {
   const actions = actionsAssertion.data.actions as AdobeCompatAction[];
